@@ -11,8 +11,8 @@ usage=$(df "$TSMLOGS_DIR" | tail -n 1 | awk '{print $5}' | sed 's/%//')
 # While the usage is greater than the maximum allowed usage
 while [[ "$usage" -gt "$MAX_USAGE" ]]; do
   # Find and delete the daily.log and weekly.log files that are older than one week
-  find "$TSMLOGS_DIR" -name "*daily.log" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
-  find "$TSMLOGS_DIR" -name "*weekly.log" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
+  find "$TSMLOGS_DIR" -name "*daily.log" ! -name "lost+found" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
+  find "$TSMLOGS_DIR" -name "*weekly.log" ! -name "lost+found" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
 
   # Find the five largest files in the tsmlogs directory (skipping the first output) and keep only the last 30 days of lines
   largest_files=$(du -a "$TSMLOGS_DIR" | sort -n -r | sed 1d | head -5 | awk '{print $2}')
