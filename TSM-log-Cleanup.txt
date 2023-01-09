@@ -1,0 +1,26 @@
+#!/bin/bash
+
+TSMLOGS_DIR="/path/to/tsmlogs"
+MAX_USAGE=70
+KEEP_DAYS_DAILY_WEEKLY=7
+KEEP_DAYS_LARGEST_FILES=30
+
+# Check the usage of the tsmlogs directory
+usage=$(df "$TSMLOGS_DIR" | tail -n 1 | awk '{print $5}' | sed 's/%//')
+
+# While the usage is greater than the maximum allowed usage
+while [[ "$usage" -gt "$MAX_USAGE" ]]; do
+  # Find and delete the daily.log and weekly.log files that are older than one week
+  find "$TSMLOGS_DIR" -name "*daily.log" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
+  find "$TSMLOGS_DIR" -name "*weekly.log" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
+
+  # Find the five largest files in the tsmlogs directory (skipping the first output) and keep only the last 30 days of lines
+  largest_files=$(du -a "$TSMLOGS_DIR" | sort -n -r | sed 1d | head -5 | awk '{print $2}')
+  for file in $largest_files; do
+    # Use sed to delete lines that are older than 30 days
+    sed -i "/^[0-9]\{4\} [0-9]\{2\} [0-9]\{2\}/{/^$(date -d "-30 days" +"%Y %m %d")/!d;}" "$file"
+  done
+
+  # Check the usage again
+  usage=$(df "$TSMLOGS_DIR" | tail -n 1 | awk '{print $5}' | sed 's/%//')
+done
