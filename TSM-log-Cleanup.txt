@@ -18,7 +18,7 @@ while [[ "$usage" -gt "$MAX_USAGE" ]]; do
   largest_files=$(du -a "$TSMLOGS_DIR" | sort -n -r | sed 1d | head -5 | awk '{print $2}')
   for file in $largest_files; do
     # Use sed to delete lines that are older than 30 days
-    sed -i "/^[0-9]\{4\} [0-9]\{2\} [0-9]\{2\}/{/^$(date -d "-30 days" +"%Y %m %d")/!d;}" "$file"
+   sed -i "/^[0-9]\{8\}/{/^$(date -d "-30 days" +"%m%d%Y")/!d;}" "$file"
   done
 
   # Check the usage again
