@@ -26,3 +26,5 @@ while [[ "$usage" -gt "$MAX_USAGE" ]]; do
 done
 
 sed -i "/^[0-9]\/[0-9]\/[0-9]/{/$(date -d "-30 days" +"%m/%d/%Y")/!d;}" "$filename"
+sed -i "s@^[0-9]/[0-9]/[0-9]@$(date -d "-30 days" +"%m/%d/%Y")@g" dsmsched.log
+
