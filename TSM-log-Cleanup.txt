@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TSMLOGS_DIR="/path/to/tsmlogs"
+TSMLOGS_DIR="/tsmlogs"
 MAX_USAGE=70
 KEEP_DAYS_DAILY_WEEKLY=7
 
@@ -17,7 +17,7 @@ while [[ "$usage" -gt "$MAX_USAGE" ]]; do
   largest_files=$(du -a "$TSMLOGS_DIR" | sort -n -r | sed 1d | head -5 | awk '{print $2}')
   for file in $largest_files; do
     # Use sed to delete lines that are older than 30 days
-    sed -i 's@'"$(date -d "-46 days" +"%m/%d/%Y")".*'@@g' "$file"
+    sed -i 's@'"$(date -d "-30 days" +"%m/%d/%Y")".*'@@g' "$file"
     # Use sed to delete empty lines
     sed -i '/^$/d' "$file"
   done
