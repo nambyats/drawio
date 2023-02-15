@@ -23,3 +23,6 @@ while [[ "$usage" -gt "$MAX_USAGE" ]]; do
   # Check the usage again
   usage=$(df "$TSMLOGS_DIR" | tail -n 1 | awk '{print $5}' | sed 's/%//')
 done
+
+
+sed -i '/^$/d;@'"$(date -d "-46 days" +"%m/%d/%Y")"'.*@d' "$file"
