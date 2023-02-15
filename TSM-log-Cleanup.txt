@@ -3,7 +3,6 @@
 TSMLOGS_DIR="/path/to/tsmlogs"
 MAX_USAGE=70
 KEEP_DAYS_DAILY_WEEKLY=7
-KEEP_DAYS_LARGEST_FILES=30
 
 # Check the usage of the tsmlogs directory
 usage=$(df "$TSMLOGS_DIR" | tail -n 1 | awk '{print $5}' | sed 's/%//')
@@ -18,7 +17,7 @@ while [[ "$usage" -gt "$MAX_USAGE" ]]; do
   largest_files=$(du -a "$TSMLOGS_DIR" | sort -n -r | sed 1d | head -5 | awk '{print $2}')
   for file in $largest_files; do
     # Use sed to delete lines that are older than 30 days and remove blank lines
-    sed -i '/^$/d;/'"$(date -d "-46 days" +"%m/%d/%Y")".*/d' "$file"
+    sed -i '/^$/d;/'"$(date -d "-46 days" +"%m/%d/%Y")"'.*/d' "$file"
   done
 
   # Check the usage again
