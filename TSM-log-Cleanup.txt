@@ -17,14 +17,10 @@ while [[ "$usage" -gt "$MAX_USAGE" ]]; do
   # Find the five largest files in the tsmlogs directory (skipping the first output) and keep only the last 30 days of lines
   largest_files=$(du -a "$TSMLOGS_DIR" | sort -n -r | sed 1d | head -5 | awk '{print $2}')
   for file in $largest_files; do
-    # Use sed to delete lines that are older than 30 days
-   sed -i "/^[0-9]\{8\}/{/^$(date -d "-30 days" +"%m%d%Y")/!d;}" "$file"
+    # Use sed to delete lines that are older than 30 days and remove blank lines
+    sed -i '/^$/d;/'"$(date -d "-46 days" +"%m/%d/%Y")".*/d' "$file"
   done
 
   # Check the usage again
   usage=$(df "$TSMLOGS_DIR" | tail -n 1 | awk '{print $5}' | sed 's/%//')
 done
-
-sed -i "/^[0-9]\/[0-9]\/[0-9]/{/$(date -d "-30 days" +"%m/%d/%Y")/!d;}" "$filename"
-sed -i "s@^[0-9]/[0-9]/[0-9]@$(date -d "-30 days" +"%m/%d/%Y")@g" dsmsched.log
-
