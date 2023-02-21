@@ -1,0 +1,21 @@
+#!/bin/bash
+
+TSMLOGS_DIR="/path/to/tsmlogs"
+MAX_USAGE=70
+KEEP_DAYS_DAILY_WEEKLY=7
+
+# Check the usage of the tsmlogs directory
+usage=$(df "$TSMLOGS_DIR" | tail -n 1 | awk '{print $5}' | sed 's/%//')
+
+# While the usage is greater than the maximum allowed usage
+while [[ "$usage" -gt "$MAX_USAGE" ]]; do
+  # Find and delete the daily.log and weekly.log files that are older than one week
+  find "$TSMLOGS_DIR" -name "*daily.log" ! -name "lost+found" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
+  find "$TSMLOGS_DIR" -name "*weekly.log" ! -name "lost+found" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
+
+  # Find the dsmsched.log files and truncate their contents
+  find "$TSMLOGS_DIR" -name "dsmsched.log" -type f -exec truncate -s 0 {} \;
+
+  # Check the usage again
+  usage=$(df "$TSMLOGS_DIR" | tail -n 1 | awk '{print $5}' | sed 's/%//')
+done
