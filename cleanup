@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TSMLOGS_DIR="/path/to/tsmlogs"
-MAX_USAGE=70
+MAX_USAGE=65
 KEEP_DAYS_DAILY_WEEKLY=7
 
 # Check the usage of the tsmlogs directory
@@ -13,8 +13,11 @@ while [[ "$usage" -gt "$MAX_USAGE" ]]; do
   find "$TSMLOGS_DIR" -name "*daily.log" ! -name "lost+found" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
   find "$TSMLOGS_DIR" -name "*weekly.log" ! -name "lost+found" -mtime +"$KEEP_DAYS_DAILY_WEEKLY" -delete
 
-  # Find the dsmsched.log files and truncate their contents
-  find "$TSMLOGS_DIR" -name "dsmsched.log" -type f -exec truncate -s 0 {} \;
+  # Find the dsmsched.log file in tsmlogs directory and empty the contents
+  dsmsched_log="$TSMLOGS_DIR/dsmsched.log"
+  if [[ -f "$dsmsched_log" ]]; then
+    cat /dev/null > "$dsmsched_log"
+  fi
 
   # Check the usage again
   usage=$(df "$TSMLOGS_DIR" | tail -n 1 | awk '{print $5}' | sed 's/%//')
